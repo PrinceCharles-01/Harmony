@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create User API Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        div { margin-bottom: 10px; }
+        label { display: inline-block; width: 100px; }
+        input[type="text"], input[type="password"], input[type="email"] { width: 200px; padding: 5px; }
+        button { padding: 10px 15px; background-color: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        #response { margin-top: 20px; padding: 10px; border: 1px solid #ccc; background-color: #f9f9f9; white-space: pre-wrap; }
+        #logs { margin-top: 20px; padding: 10px; border: 1px solid #eee; background-color: #f3f3f3; white-space: pre-wrap; max-height: 300px; overflow-y: scroll; font-size: 0.8em; }
+    </style>
+</head>
+<body>
+    <h1>Create User API Test</h1>
+
+    <form id="createUserForm">
+        <div>
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        <div>
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+        <div>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <div>
+            <label for="role">Role Name:</label>
+            <input type="text" id="role" name="role" placeholder="e.g., Admin, Student">
+        </div>
+        <button type="submit">Create User</button>
+    </form>
+
+    <h2>Response:</h2>
+    <div id="response"></div>
+
+    <h2>Logs:</h2>
+    <div id="logs"></div>
+
+    <script>
+        const form = document.getElementById('createUserForm');
+        const responseDiv = document.getElementById('response');
+        const logsDiv = document.getElementById('logs');
+
+        function log(message) {
+            const p = document.createElement('p');
+            p.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logsDiv.prepend(p); // Add to top
+        }
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            log("Form submitted.");
+
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const role = document.getElementById('role').value;
+
+            const data = {
+                username,
+                email,
+                password,
+                role: role || null // Send null if role is empty
+            };
+
+            log(`Sending data: ${JSON.stringify(data, null, 2)}`);
+
+            try {
+                const apiEndpoint = '/api/create-user/'; // Adjust if your Django app is not at root
+                log(`Sending POST request to ${apiEndpoint}`);
+
+                const res = await fetch(apiEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+
+                const result = await res.json();
+                log(`Received response (Status: ${res.status}): ${JSON.stringify(result, null, 2)}`);
+
+                responseDiv.textContent = JSON.stringify(result, null, 2);
+                responseDiv.style.color = res.ok ? 'green' : 'red';
+
+            } catch (error) {
+                log(`Fetch error: ${error}`);
+                responseDiv.textContent = `Error: ${error.message}`;
+                responseDiv.style.color = 'red';
+            }
+        });
+    </script>
+</body>
+</html>

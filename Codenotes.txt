@@ -1,0 +1,141 @@
+🎓 Système LMD — Schéma textuel explicatif
+1. 🧩 STRUCTURE GÉNÉRALE DU LMD
+Université
+└── UFR / Faculté / Institut
+    └── Département
+        └── Filière
+            └── Parcours (optionnel)
+                └── Cycle (Licence / Master / Doctorat)
+                    └── Niveau (L1, L2, L3, M1, M2, D1, D2, D3)
+                        └── Semestre (S1, S2, etc.)
+                            └── Unité d’Enseignement (UE)
+                                └── Élément Constitutif (EC) / Matière
+
+📘 Explication rapide
+Terme	Définition	Exemple
+Faculté / Institut	Regroupe plusieurs départements	Faculté des Sciences
+Département	Gère une ou plusieurs filières	Département d’Informatique
+Filière	Regroupe des parcours d’études menant à un diplôme	Informatique de Gestion
+Parcours	Spécialisation dans une filière (optionnel)	Génie Logiciel, Systèmes d’Information
+Cycle	Ensemble de niveaux menant à un grade (Licence / Master / Doctorat)	Cycle Licence
+Niveau	Année d’étude dans un cycle	L1 = 1re année, M1 = 1re année Master
+Semestre	Période d’enseignement (2 par niveau)	S1, S2
+UE (Unité d’Enseignement)	Ensemble de matières/EC cohérentes	UE : “Bases de la Programmation”
+EC (Élément Constitutif)	Matière spécifique dans une UE	EC : “Algorithmique et C”
+2. 🪜 LES CYCLES ET LEURS CRÉDITS
+Cycle	Années / Niveaux	Semestres	Crédits par niveau	Crédits totaux	Diplôme obtenu
+Licence (L)	L1, L2, L3	S1–S6	60 crédits/an	180 crédits	Licence
+Master (M)	M1, M2	S7–S10	60 crédits/an	120 crédits	Master
+Doctorat (D)	D1, D2, D3	Variable	Pas de système de crédits standard	—	Doctorat
+
+🎯 1 UE validée = crédits obtenus.
+Chaque semestre vaut 30 crédits, chaque année 60 crédits.
+
+3. 🧮 CALCUL DES NOTES ET VALIDATION
+🔹 a) Les composantes typiques de la note finale
+Élément	Coefficient / Poids
+Devoir / Contrôle continu (CC)	30 % → 0,3
+Examen final	70 % → 0,7
+
+💡 Parfois on rencontre 0,3 / 0,67, ou même 0,4 / 0,6 selon l’établissement.
+Tu peux donc rendre ces coefficients paramétrables dans ton app.
+
+➕ Exemple :
+Note finale = (Devoir × 0,3) + (Examen × 0,7)
+             = (12 × 0,3) + (8 × 0,7)
+             = 3,6 + 5,6 = 9,2 / 20
+
+🔹 b) Rattrapage
+
+Si un étudiant échoue à une matière (souvent < 10/20), il a droit à une session de rattrapage :
+
+Si (note_rattrapage > note_normale) :
+    note_finale = note_rattrapage
+Sinon :
+    note_finale = note_normale
+
+
+⚠️ Parfois, le rattrapage remplace uniquement la note d’examen final, pas la moyenne entière.
+Donc :
+Nouvelle note = (Devoir × 0,3) + (Rattrapage × 0,7)
+
+🔹 c) Validation de l’UE, du semestre et du niveau
+
+UE validée si moyenne ≥ 10/20.
+
+Semestre validé si moyenne générale du semestre ≥ 10/20 ou si capitalisation des UE réussies.
+
+Niveau validé si les deux semestres sont validés.
+
+Crédits capitalisables : même si l’étudiant échoue à une autre UE, les crédits des UE validées restent acquis.
+
+💡 Exemple :
+
+UE1 = 12/20 (6 crédits) ✅
+
+UE2 = 8/20 (4 crédits) ❌
+Il conserve 6 crédits. Si plus tard il réussit UE2, il atteint les 10 crédits du semestre.
+
+4. 🧮 Exemple complet (Licence 1)
+L1 (60 crédits)
+├── S1 (30 crédits)
+│   ├── UE Fondamentales (20 crédits)
+│   │   ├── EC Mathématiques (6 cr)
+│   │   ├── EC Algorithmique (7 cr)
+│   │   └── EC Informatique Générale (7 cr)
+│   └── UE Complémentaires (10 crédits)
+│       ├── EC Anglais (5 cr)
+│       └── EC Expression Française (5 cr)
+└── S2 (30 crédits)
+    ├── UE Fondamentales (20 crédits)
+    ├── UE Professionnalisantes (10 crédits)
+
+5. 📊 Passage d’un niveau à un autre
+
+Passage automatique si le niveau précédent est validé (≥10 de moyenne ou crédits suffisants).
+
+Passage conditionnel (souvent possible avec 45/60 crédits validés).
+
+Redoublement si trop d’UE non validées ou moyenne générale trop faible.
+
+6. 🎓 Schéma synthétique de progression
+Licence (180 crédits)
+├── L1 → 60 crédits → 2 semestres (S1–S2)
+├── L2 → 60 crédits → 2 semestres (S3–S4)
+└── L3 → 60 crédits → 2 semestres (S5–S6)
+    ↓
+Master (120 crédits)
+├── M1 → 60 crédits → 2 semestres (S7–S8)
+└── M2 → 60 crédits → 2 semestres (S9–S10)
+    ↓
+Doctorat
+├── D1, D2, D3 → soutenance
+
+7. 🧱 Liens utiles pour ta base de données
+
+Tu peux structurer les tables comme ceci :
+
+universites
+facultes
+departements
+filieres
+parcours
+cycles
+niveaux
+semestres
+ues
+elements_constitutifs
+etudiants
+notes
+
+
+Et les relations :
+
+filiere → departement → faculté → université
+parcours → filiere
+cycle → parcours
+niveau → cycle
+semestre → niveau
+UE → semestre
+EC → UE
+Note → EC + Étudiant
