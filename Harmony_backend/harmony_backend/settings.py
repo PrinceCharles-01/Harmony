@@ -90,7 +90,7 @@ DATABASES = {
         'NAME': os.environ.get('DATABASE_NAME', 'harmony_db'),
         'USER': os.environ.get('DATABASE_USER', 'harmony_user'),
         'PASSWORD': os.environ.get('DATABASE_PASSWORD', 'harmony_password'),
-        'HOST': os.environ.get('DATABASE_HOST', 'localhost'),
+        'HOST': os.environ.get('DATABASE_HOST', 'db'),
         'PORT': os.environ.get('DATABASE_PORT', '5432'),
     }
 }
