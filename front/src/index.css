@@ -1,0 +1,551 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Système de design glassmorphisme - Couleurs pastel rose/violet 
+Toutes les couleurs sont en HSL pour une cohérence parfaite.
+*/
+
+@layer base {
+  :root {
+    /* Couleurs principales - Thème clair élégant */
+    --background: 0 0% 98%;
+    --foreground: 220 15% 20%;
+
+    /* Glassmorphisme subtil */
+    --card: 0 0% 96%;
+    --card-foreground: 220 15% 20%;
+    --glass: 0 0% 98%;
+    --glass-border: 220 10% 85%;
+
+    /* Éléments interactifs */
+    --popover: 0 0% 97%;
+    --popover-foreground: 220 15% 20%;
+
+    /* Primaire - Violet sophistiqué */
+    --primary: 260 80% 45%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 260 60% 65%;
+    --primary-dark: 260 90% 35%;
+
+    /* Secondaire - Neutre élégant */
+    --secondary: 220 15% 90%;
+    --secondary-foreground: 220 15% 25%;
+
+    /* Neutre et sourdine */
+    --muted: 220 10% 92%;
+    --muted-foreground: 220 10% 45%;
+
+    /* Accent - Subtil */
+    --accent: 260 30% 85%;
+    --accent-foreground: 220 15% 25%;
+
+    /* États d'erreur */
+    --destructive: 0 70% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Bordures et champs */
+    --border: 220 10% 88%;
+    --input: 0 0% 95%;
+    --ring: 260 80% 45%;
+
+    /* Effets visuels minimalistes */
+    --gradient-primary: hsl(260 80% 45%);
+    --gradient-secondary: hsl(220 15% 90%);
+    --gradient-glass: hsl(0 0% 98% / 0.8);
+    --gradient-bento: hsl(0 0% 97% / 0.9);
+    --gradient-harmony: hsl(260 80% 45%);
+    --shadow-glass: 0 4px 20px hsl(220 10% 80% / 0.3);
+    --shadow-soft: 0 2px 8px hsl(220 10% 85% / 0.2);
+    --shadow-bento: 0 4px 16px hsl(220 10% 80% / 0.25);
+
+    --radius: 1rem;
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    /* Thème sombre élégant */
+    --background: 220 25% 10%;
+    --foreground: 0 0% 95%;
+
+    /* Glassmorphisme sombre */
+    --card: 220 20% 15%;
+    --card-foreground: 0 0% 95%;
+    --glass: 220 25% 12%;
+    --glass-border: 220 15% 25%;
+
+    /* Éléments interactifs sombres */
+    --popover: 220 20% 15%;
+    --popover-foreground: 0 0% 95%;
+
+    /* Primaire - Violet lumineux */
+    --primary: 260 70% 65%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 260 60% 75%;
+    --primary-dark: 260 80% 55%;
+
+    /* Secondaire - Neutre sombre */
+    --secondary: 220 15% 20%;
+    --secondary-foreground: 0 0% 90%;
+
+    /* Neutre et sourdine sombres */
+    --muted: 220 15% 18%;
+    --muted-foreground: 0 0% 70%;
+
+    /* Accent - Subtil sombre */
+    --accent: 220 20% 25%;
+    --accent-foreground: 0 0% 90%;
+
+    /* États d'erreur */
+    --destructive: 0 70% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Bordures et champs sombres */
+    --border: 220 15% 22%;
+    --input: 220 20% 18%;
+    --ring: 260 70% 65%;
+
+    /* Effets visuels minimalistes sombres */
+    --gradient-primary: hsl(260 70% 65%);
+    --gradient-secondary: hsl(220 15% 20%);
+    --gradient-glass: hsl(220 25% 12% / 0.8);
+    --gradient-bento: hsl(220 20% 15% / 0.9);
+    --gradient-harmony: hsl(260 70% 65%);
+    --shadow-glass: 0 4px 20px hsl(220 25% 5% / 0.4);
+    --shadow-soft: 0 2px 8px hsl(220 20% 8% / 0.3);
+    --shadow-bento: 0 4px 16px hsl(220 25% 5% / 0.5);
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  /* Dark Strawberry Theme - Sophisticated */
+  [data-theme="strawberry"] {
+    --background: 340 20% 12%;
+    --foreground: 0 0% 95%;
+    
+    /* Glassmorphisme */
+    --card: 340 15% 18%;
+    --card-foreground: 0 0% 95%;
+    --glass: 340 20% 15%;
+    --glass-border: 340 25% 25%;
+    
+    /* Interactive */
+    --popover: 340 15% 18%;
+    --popover-foreground: 0 0% 95%;
+    
+    /* Primary Colors */
+    --primary: 340 70% 60%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 340 60% 70%;
+    --primary-dark: 340 80% 50%;
+    
+    /* Secondary */
+    --secondary: 340 15% 22%;
+    --secondary-foreground: 0 0% 90%;
+    
+    /* Muted */
+    --muted: 340 12% 20%;
+    --muted-foreground: 0 0% 70%;
+    
+    /* Accent */
+    --accent: 340 30% 30%;
+    --accent-foreground: 0 0% 90%;
+    
+    /* Destructive */
+    --destructive: 0 70% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    /* Border */
+    --border: 340 20% 25%;
+    --input: 340 15% 22%;
+    --ring: 340 70% 60%;
+    
+    /* Simplified gradients */
+    --gradient-primary: hsl(340 70% 60%);
+    --gradient-secondary: hsl(340 15% 22%);
+    --gradient-glass: hsl(340 20% 15% / 0.8);
+    --gradient-bento: hsl(340 15% 18% / 0.9);
+    --gradient-harmony: hsl(340 70% 60%);
+    
+    /* Shadows */
+    --shadow-glass: 0 4px 20px hsl(340 25% 8% / 0.4);
+    --shadow-soft: 0 2px 8px hsl(340 20% 10% / 0.3);
+    --shadow-bento: 0 4px 16px hsl(340 25% 8% / 0.5);
+  }
+
+  /* Light Blue Theme - Sophisticated */
+  [data-theme="blue-light"] {
+    --background: 0 0% 98%;
+    --foreground: 220 20% 20%;
+    
+    /* Glassmorphisme */
+    --card: 210 20% 96%;
+    --card-foreground: 220 20% 20%;
+    --glass: 210 15% 97%;
+    --glass-border: 210 15% 85%;
+    
+    /* Interactive */
+    --popover: 210 20% 97%;
+    --popover-foreground: 220 20% 20%;
+    
+    /* Primary Colors */
+    --primary: 210 80% 50%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 210 70% 65%;
+    --primary-dark: 210 90% 40%;
+    
+    /* Secondary */
+    --secondary: 210 15% 90%;
+    --secondary-foreground: 220 20% 25%;
+    
+    /* Muted */
+    --muted: 210 10% 92%;
+    --muted-foreground: 220 15% 45%;
+    
+    /* Accent */
+    --accent: 210 30% 85%;
+    --accent-foreground: 220 20% 25%;
+    
+    /* Destructive */
+    --destructive: 0 70% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    /* Border */
+    --border: 210 15% 88%;
+    --input: 210 10% 95%;
+    --ring: 210 80% 50%;
+    
+    /* Simplified gradients */
+    --gradient-primary: hsl(210 80% 50%);
+    --gradient-secondary: hsl(210 15% 90%);
+    --gradient-glass: hsl(210 15% 97% / 0.8);
+    --gradient-bento: hsl(210 20% 96% / 0.9);
+    --gradient-harmony: hsl(210 80% 50%);
+    
+    /* Shadows */
+    --shadow-glass: 0 4px 20px hsl(210 20% 80% / 0.3);
+    --shadow-soft: 0 2px 8px hsl(210 15% 85% / 0.2);
+    --shadow-bento: 0 4px 16px hsl(210 20% 80% / 0.25);
+  }
+
+  /* Night Blue Theme - Sophisticated */
+  [data-theme="blue-night"] {
+    --background: 220 25% 10%;
+    --foreground: 0 0% 95%;
+    
+    /* Glassmorphisme */
+    --card: 220 20% 15%;
+    --card-foreground: 0 0% 95%;
+    --glass: 220 25% 12%;
+    --glass-border: 220 20% 25%;
+    
+    /* Interactive */
+    --popover: 220 20% 15%;
+    --popover-foreground: 0 0% 95%;
+    
+    /* Primary Colors */
+    --primary: 220 80% 65%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 220 70% 75%;
+    --primary-dark: 220 90% 55%;
+    
+    /* Secondary */
+    --secondary: 220 15% 20%;
+    --secondary-foreground: 0 0% 90%;
+    
+    /* Muted */
+    --muted: 220 15% 18%;
+    --muted-foreground: 0 0% 70%;
+    
+    /* Accent */
+    --accent: 220 25% 30%;
+    --accent-foreground: 0 0% 90%;
+    
+    /* Destructive */
+    --destructive: 0 70% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    /* Border */
+    --border: 220 20% 22%;
+    --input: 220 15% 18%;
+    --ring: 220 80% 65%;
+    
+    /* Simplified gradients */
+    --gradient-primary: hsl(220 80% 65%);
+    --gradient-secondary: hsl(220 15% 20%);
+    --gradient-glass: hsl(220 25% 12% / 0.8);
+    --gradient-bento: hsl(220 20% 15% / 0.9);
+    --gradient-harmony: hsl(220 80% 65%);
+    
+    /* Shadows */
+    --shadow-glass: 0 4px 20px hsl(220 25% 5% / 0.4);
+    --shadow-soft: 0 2px 8px hsl(220 20% 8% / 0.3);
+    --shadow-bento: 0 4px 16px hsl(220 25% 5% / 0.5);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    background: hsl(var(--background));
+    min-height: 100vh;
+    transition: all 0.3s ease;
+  }
+}
+
+/* Utilitaires glassmorphisme renforcés */
+@layer utilities {
+  .glass {
+    background: var(--gradient-glass);
+    backdrop-filter: blur(8px);
+    border: 1px solid hsl(var(--glass-border));
+    box-shadow: var(--shadow-glass);
+  }
+
+  .glass-card {
+    @apply glass rounded-xl p-4;
+    transition: all 0.3s ease;
+  }
+
+  .glass-card:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .glass-input {
+    @apply glass rounded-xl px-4 py-3 border-glass-border/50;
+    backdrop-filter: blur(15px);
+  }
+
+  .btn-glass {
+    @apply glass rounded-xl px-6 py-3 font-medium transition-all duration-300;
+    @apply hover:shadow-lg hover:scale-105 active:scale-95;
+  }
+
+  .gradient-text {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Bento UI styles - Larger cards for better readability */
+  .bento-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+  }
+
+  .bento-card {
+    background: var(--gradient-bento);
+    backdrop-filter: blur(8px);
+    border: 1px solid hsl(var(--border));
+    border-radius: 1rem;
+    box-shadow: var(--shadow-bento);
+    transition: all 0.3s ease;
+    overflow: hidden;
+    padding: 1.5rem;
+    min-height: 200px;
+  }
+
+  .bento-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-soft);
+    border-color: hsl(var(--primary) / 0.3);
+  }
+
+  .bento-card-large {
+    grid-column: span 2;
+    min-height: 400px;
+    padding: 2rem;
+  }
+
+  .bento-card-medium {
+    min-height: 300px;
+    padding: 1.75rem;
+  }
+
+  @media (max-width: 768px) {
+    .bento-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+    
+    .bento-card-large {
+      grid-column: span 1;
+    }
+  }
+
+  /* Animations Harmony artistiques et fluides */
+  @keyframes harmony-circle-rotate {
+    0% { 
+      transform: rotate(0deg) scale(1);
+      opacity: 0.3;
+    }
+    50% { 
+      transform: rotate(180deg) scale(1.1);
+      opacity: 0.7;
+    }
+    100% { 
+      transform: rotate(360deg) scale(1);
+      opacity: 0.3;
+    }
+  }
+
+  @keyframes harmony-ripple {
+    0% { 
+      transform: scale(0.8);
+      opacity: 0.8;
+    }
+    50% { 
+      transform: scale(1.2);
+      opacity: 0.4;
+    }
+    100% { 
+      transform: scale(1.6);
+      opacity: 0;
+    }
+  }
+
+  @keyframes harmony-dot-flow {
+    0% { 
+      transform: translateY(0) scale(0.8);
+      opacity: 0.5;
+    }
+    25% { 
+      transform: translateY(-8px) scale(1);
+      opacity: 1;
+    }
+    50% { 
+      transform: translateY(-12px) scale(1.1);
+      opacity: 0.8;
+    }
+    75% { 
+      transform: translateY(-8px) scale(1);
+      opacity: 0.6;
+    }
+    100% { 
+      transform: translateY(0) scale(0.8);
+      opacity: 0.5;
+    }
+  }
+
+  @keyframes harmony-progress {
+    0% { 
+      transform: translateX(-100%) scaleX(0.5);
+      opacity: 0.5;
+    }
+    50% { 
+      transform: translateX(0) scaleX(1);
+      opacity: 1;
+    }
+    100% { 
+      transform: translateX(100%) scaleX(0.5);
+      opacity: 0.5;
+    }
+  }
+
+  /* Cercles artistiques */
+  .harmony-circle-outer {
+    border: 2px solid hsl(260 85% 35% / 0.2);
+    border-top-color: hsl(260 85% 35% / 0.6);
+    border-radius: 50%;
+    animation: harmony-circle-rotate 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+
+  .harmony-circle-middle {
+    border: 2px solid hsl(330 70% 65% / 0.3);
+    border-right-color: hsl(330 70% 65% / 0.7);
+    border-radius: 50%;
+    animation: harmony-circle-rotate 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite reverse;
+  }
+
+  .harmony-circle-inner {
+    border: 1px solid hsl(320 60% 80% / 0.4);
+    border-bottom-color: hsl(320 60% 80% / 0.8);
+    border-radius: 50%;
+    animation: harmony-circle-rotate 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+
+  .harmony-center {
+    background: var(--gradient-harmony);
+    border-radius: 50%;
+    animation: harmony-ripple 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+
+  /* Points fluides */
+  .harmony-dots {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+
+  .harmony-dot-smooth {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, hsl(260 85% 35%), hsl(330 70% 65%));
+    animation: harmony-dot-flow 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+    box-shadow: 0 2px 8px hsl(260 85% 35% / 0.3);
+  }
+
+  .harmony-dot-smooth:nth-child(2) {
+    animation-delay: 0.3s;
+    background: linear-gradient(135deg, hsl(330 70% 65%), hsl(320 60% 80%));
+  }
+
+  .harmony-dot-smooth:nth-child(3) {
+    animation-delay: 0.6s;
+    background: linear-gradient(135deg, hsl(320 60% 80%), hsl(330 70% 65%));
+  }
+
+  .harmony-dot-smooth:nth-child(4) {
+    animation-delay: 0.9s;
+    background: linear-gradient(135deg, hsl(260 85% 35%), hsl(320 60% 80%));
+  }
+
+  /* Texte artistique */
+  .harmony-gradient-text {
+    background: var(--gradient-harmony);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 2px 4px hsl(260 85% 35% / 0.2));
+  }
+
+  /* Barre de progression artistique */
+  .harmony-progress-bar {
+    background: var(--gradient-harmony);
+    box-shadow: 0 0 12px hsl(260 85% 35% / 0.4);
+  }
+
+  .harmony-enter {
+    animation: harmony-fade-in 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+}

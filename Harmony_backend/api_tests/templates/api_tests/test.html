@@ -3,157 +3,125 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Gestion Académique - Utilisateurs</title>
+  <title>Gestion Académique - Test Interface</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body { background-color: #f8f9fa; }
     .card { border-radius: 1rem; box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,.1); }
     .nav-tabs .nav-link.active { background-color: #0d6efd; color: #fff; }
     .table th { background-color: #f1f1f1; }
+    .card-header { font-weight: 500; }
   </style>
 </head>
 <body>
 <div class="container py-5">
-  <h2 class="mb-4 text-center text-primary">🎓 Portail de gestion académique</h2>
+  <h2 class="mb-4 text-center text-primary">🎓 Portail de test académique</h2>
 
-  <!-- Onglets de navigation -->
   <ul class="nav nav-tabs mb-4" id="tabs">
-    <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tab-user">Créer un utilisateur</a></li>
-    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-filiere">Attribuer une filière</a></li>
-    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-notes">Voir les notes</a></li>
+    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-gestion">Gestion Académique</a></li>
+    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-user">Gestion Utilisateurs</a></li>
+    <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tab-inscription">Inscriptions</a></li>
+    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-notes">Notes</a></li>
   </ul>
 
   <div class="tab-content">
 
-    <!-- 🔹 Création d’utilisateur -->
-    <div class="tab-pane fade show active" id="tab-user">
+    <div class="tab-pane fade show active" id="tab-inscription">
+      <div class="card p-4">
+        <h5 class="mb-3">Inscrire un étudiant à une classe</h5>
+        <form id="form-enroll-student">
+          <div class="mb-3"><label class="form-label">Étudiant</label><select class="form-select" id="enroll-user-select" required></select></div>
+          <div class="mb-3"><label class="form-label">Classe</label><select class="form-select" id="enroll-classe-select" required></select></div>
+          <button type="submit" class="btn btn-primary">Inscrire l'étudiant</button>
+        </form>
+        <div id="enroll-status" class="mt-3"></div>
+      </div>
+    </div>
+
+    <div class="tab-pane fade" id="tab-user">
       <div class="card p-4">
         <h5 class="mb-3">Créer un nouvel utilisateur</h5>
-        <form id="form-user">
-          <div class="row mb-3">
-            <div class="col-md-6">
-              <label class="form-label">Nom</label>
-              <input type="text" class="form-control" id="nom" required>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Prénom</label>
-              <input type="text" class="form-control" id="prenom">
-            </div>
+        <form id="form-create-user">
+          <div class="row">
+            <div class="col-md-6 mb-3"><input type="text" class="form-control" id="user-first-name" placeholder="Prénom" required></div>
+            <div class="col-md-6 mb-3"><input type="text" class="form-control" id="user-last-name" placeholder="Nom" required></div>
+            <div class="col-md-6 mb-3"><input type="email" class="form-control" id="user-email" placeholder="Email" required></div>
+            <div class="col-md-6 mb-3"><input type="text" class="form-control" id="user-matricule" placeholder="Matricule (sera le nom d'utilisateur)" required></div>
+            <div class="col-md-6 mb-3"><input type="date" class="form-control" id="user-dob" placeholder="Date de naissance" required></div>
+            <div class="col-md-6 mb-3"><input type="text" class="form-control" id="user-pob" placeholder="Lieu de naissance" required></div>
+            <div class="col-md-6 mb-3"><input type="text" class="form-control" id="user-nationality" placeholder="Nationalité" required></div>
+            <div class="col-md-6 mb-3"><input type="text" class="form-control" id="user-phone" placeholder="Téléphone"></div>
+            <div class="col-md-12 mb-3"><select class="form-select" id="user-role" required><option selected disabled value="">Choisir un rôle</option></select></div>
           </div>
-
-          <div class="row mb-3">
-            <div class="col-md-4">
-              <label class="form-label">Date de naissance</label>
-              <input type="date" class="form-control" id="naissance">
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Téléphone</label>
-              <input type="tel" class="form-control" id="tel">
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Email</label>
-              <input type="email" class="form-control" id="email">
-            </div>
-          </div>
-
-          <div class="row mb-3">
-            <div class="col-md-6">
-              <label class="form-label">Matricule</label>
-              <input type="text" class="form-control" id="matricule">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Rôle</label>
-              <select class="form-select" id="role">
-                <option>Étudiant</option>
-                <option>Enseignant</option>
-                <option>Responsable académique</option>
-                <option>Administrateur</option>
-              </select>
-            </div>
-          </div>
-
-          <button type="submit" class="btn btn-primary w-100">Créer l'utilisateur</button>
+          <button type="submit" class="btn btn-success">Créer l'utilisateur</button>
         </form>
         <div id="user-creation-status" class="mt-3"></div>
       </div>
     </div>
 
-    <!-- 🔹 Attribution de filière -->
-    <div class="tab-pane fade" id="tab-filiere">
-      <div class="card p-4">
-        <h5 class="mb-3">Attribuer une filière / niveau</h5>
-        <form id="form-filiere">
-          <div class="row mb-3">
-            <div class="col-md-4">
-              <label class="form-label">Utilisateur</label>
-              <select class="form-select" id="user-select">
-                <option>-- Sélectionner un utilisateur --</option>
-              </select>
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Filière</label>
-              <select class="form-select" id="filiere">
-                <option>Informatique de Gestion</option>
-                <option>Génie Logiciel</option>
-                <option>Sciences Économiques</option>
-              </select>
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Niveau</label>
-              <select class="form-select" id="niveau">
-                <option>L1</option>
-                <option>L2</option>
-                <option>L3</option>
-                <option>M1</option>
-                <option>M2</option>
-              </select>
-            </div>
-          </div>
-          <button type="submit" class="btn btn-success w-100">Attribuer</button>
-        </form>
-        <div id="filiere-assignment-status" class="mt-3"></div>
-      </div>
+    <div class="tab-pane fade" id="tab-notes">
+        <div class="card p-4">
+            <h5 class="mb-3">Consulter les notes d'un étudiant</h5>
+            <form id="form-get-grades">
+                <div class="mb-3"><label class="form-label">Choisir un étudiant</label><select class="form-select" id="grades-user-select" required></select></div>
+                <button type="submit" class="btn btn-primary">Voir les notes</button>
+            </form>
+            <div id="grades-results" class="mt-4"></div>
+        </div>
     </div>
 
-    <!-- 🔹 Consultation des notes -->
-    <div class="tab-pane fade" id="tab-notes">
+    <div class="tab-pane fade" id="tab-gestion">
       <div class="card p-4">
-        <h5 class="mb-3">Notes de l’étudiant</h5>
-        <div class="mb-3">
-          <select class="form-select" id="etudiant-notes">
-            <option>-- Sélectionner un étudiant --</option>
-          </select>
+
+        <h5 class="mb-3 border-bottom pb-2">Filières</h5>
+        <div class="card-body ps-0">
+          <h6>Créer une filière</h6>
+          <form id="form-create-filiere" class="mb-4">
+            <div class="row g-3 align-items-end">
+              <div class="col"><input type="text" class="form-control" id="filiere-nom" placeholder="Nom de la filière" required></div>
+              <div class="col"><input type="text" class="form-control" id="filiere-code" placeholder="Code" required></div>
+              <div class="col-auto"><button type="submit" class="btn btn-info">Créer</button></div>
+            </div>
+            <div id="filiere-creation-status" class="mt-2"></div>
+          </form>
+          <h6>Liste des filières</h6>
+          <table class="table table-striped table-sm"><thead class="table-light"><tr><th>ID</th><th>Nom</th><th>Code</th></tr></thead><tbody id="filiere-list"></tbody></table>
         </div>
-        <table class="table table-bordered table-striped">
-          <thead>
-            <tr>
-              <th>UE</th>
-              <th>Matière</th>
-              <th>Devoir (30%)</th>
-              <th>Examen (70%)</th>
-              <th>Moyenne /20</th>
-              <th>Crédits</th>
-            </tr>
-          </thead>
-          <tbody id="notes-table">
-            <tr>
-              <td>Mathématiques Fondamentales</td>
-              <td>Analyse I</td>
-              <td>12</td>
-              <td>14</td>
-              <td>13.4</td>
-              <td>6</td>
-            </tr>
-            <tr>
-              <td>Programmation</td>
-              <td>Algorithmique</td>
-              <td>11</td>
-              <td>9</td>
-              <td>9.6</td>
-              <td>5</td>
-            </tr>
-          </tbody>
-        </table>
+
+        <h5 class="mb-3 mt-4 border-bottom pb-2">Parcours</h5>
+        <div class="card-body ps-0">
+          <h6>Créer un parcours</h6>
+          <form id="form-create-parcours" class="mb-4">
+            <div class="row g-3 align-items-end">
+              <div class="col-md-3"><select class="form-select" id="parcours-filiere-select" required></select></div>
+              <div class="col-md-3"><select class="form-select" id="parcours-cycle-select" required></select></div>
+              <div class="col-md-3"><input type="text" class="form-control" id="parcours-nom" placeholder="Nom du parcours" required></div>
+              <div class="col-md-2"><input type="text" class="form-control" id="parcours-code" placeholder="Code" required></div>
+              <div class="col-md-1"><button type="submit" class="btn btn-info">Créer</button></div>
+            </div>
+            <div id="parcours-creation-status" class="mt-2"></div>
+          </form>
+          <h6>Liste des parcours</h6>
+          <table class="table table-striped table-sm"><thead class="table-light"><tr><th>ID</th><th>Filière</th><th>Parcours</th><th>Cycle</th><th>Code</th></tr></thead><tbody id="parcours-list"></tbody></table>
+        </div>
+
+        <h5 class="mb-3 mt-4 border-bottom pb-2">Classes</h5>
+        <div class="card-body ps-0">
+          <h6>Créer une classe</h6>
+          <form id="form-create-classe" class="mb-4">
+            <div class="row g-3 align-items-end">
+              <div class="col-md-3"><label>Année</label><select class="form-select" id="classe-annee-select" required></select></div>
+              <div class="col-md-3"><label>Parcours</label><select class="form-select" id="classe-parcours-select" required></select></div>
+              <div class="col-md-3"><label>Semestre</label><select class="form-select" id="classe-semestre-select" required></select></div>
+              <div class="col-md-2"><label>Nom</label><input type="text" class="form-control" id="classe-nom" placeholder="Groupe A (optionnel)"></div>
+              <div class="col-md-1"><button type="submit" class="btn btn-info">Créer</button></div>
+            </div>
+            <div id="classe-creation-status" class="mt-2"></div>
+          </form>
+          <h6>Liste des classes</h6>
+          <table class="table table-striped table-sm"><thead class="table-light"><tr><th>ID</th><th>Description de la classe</th></tr></thead><tbody id="classe-list"></tbody></table>
+        </div>
+
       </div>
     </div>
 
@@ -162,207 +130,164 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-  // --- Gestion de la création d'utilisateur ---
-  const userForm = document.getElementById("form-user");
-  const userStatusDiv = document.getElementById("user-creation-status");
+  const API_BASE_URL = '/api';
+  let allParcours = [];
+  let allSemestres = [];
 
-  userForm.addEventListener("submit", async e => {
+  const fetchData = async (endpoint) => {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`);
+    if (!response.ok) throw new Error(`Error fetching ${endpoint}`);
+    return response.json();
+  };
+
+  const postData = async (endpoint, data) => {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    return { ok: response.ok, data: await response.json() };
+  };
+
+  const populateDropdown = (selectId, items, placeholder, valueField = 'id', textField = 'nom') => {
+    const select = document.getElementById(selectId);
+    select.innerHTML = `<option selected disabled value="">${placeholder}</option>`;
+    items.forEach(item => {
+      const option = document.createElement('option');
+      option.value = item[valueField];
+      option.textContent = item[textField];
+      select.appendChild(option);
+    });
+  };
+
+  const handleFormSubmit = async (formId, endpoint, data, statusDivId, successCallback) => {
+    const statusDiv = document.getElementById(statusDivId);
+    try {
+      const { ok, data: result } = await postData(endpoint, data);
+      statusDiv.innerHTML = ok
+        ? `<div class="alert alert-success alert-dismissible fade show p-2" role="alert">${result.message}</div>`
+        : `<div class="alert alert-danger alert-dismissible fade show p-2" role="alert">Erreur: ${result.error}</div>`;
+      if (ok) {
+        document.getElementById(formId).reset();
+        if (successCallback) successCallback();
+      }
+    } catch (error) {
+      statusDiv.innerHTML = `<div class="alert alert-danger alert-dismissible fade show p-2" role="alert">Erreur de connexion à l'API.</div>`;
+    }
+  };
+
+  const populateAll = async () => {
+    try {
+        const [users, roles, filieres, parcours, semestres, annees, classes, cycles] = await Promise.all([
+            fetchData('/users/'),
+            Promise.resolve([{ name: 'Etudiant' }, { name: 'Enseignant' }, { name: 'Admin' }]),
+            fetchData('/filieres/'),
+            fetchData('/parcours/'),
+            fetchData('/semestres/'),
+            fetchData('/annees-academiques/'),
+            fetchData('/classes/'),
+            fetchData('/cycles/')
+        ]);
+
+        allParcours = parcours;
+        allSemestres = semestres;
+
+        populateDropdown('user-role', roles, 'Choisir un rôle', 'name', 'name');
+        populateDropdown('enroll-user-select', users, 'Choisir un étudiant', 'id', 'username');
+        populateDropdown('grades-user-select', users, 'Choisir un étudiant', 'id', 'username');
+        populateDropdown('parcours-filiere-select', filieres, 'Choisir une filière');
+        populateDropdown('parcours-cycle-select', cycles, 'Choisir un cycle');
+        populateDropdown('classe-annee-select', annees, 'Année Académique');
+        populateDropdown('classe-parcours-select', allParcours, 'Choisir un parcours');
+        populateDropdown('enroll-classe-select', classes, 'Choisir une classe');
+        populateDropdown('classe-semestre-select', [], 'Choisir d'abord un parcours');
+
+        document.getElementById('filiere-list').innerHTML = filieres.map(f => `<tr><td>${f.id}</td><td>${f.nom}</td><td>${f.code}</td></tr>`).join('');
+        document.getElementById('parcours-list').innerHTML = allParcours.map(p => `<tr><td>${p.id}</td><td>${p.filiere_nom}</td><td>${p.nom}</td><td>${p.cycle_nom}</td><td>${p.code}</td></tr>`).join('');
+        document.getElementById('classe-list').innerHTML = classes.map(c => `<tr><td>${c.id}</td><td>${c.nom}</td></tr>`).join('');
+
+    } catch (error) {
+        console.error("Failed to populate page data:", error);
+    }
+  };
+
+  document.addEventListener('DOMContentLoaded', populateAll);
+
+  document.getElementById('classe-parcours-select').addEventListener('change', (e) => {
+      const selectedParcoursId = e.target.value;
+      const selectedParcours = allParcours.find(p => p.id == selectedParcoursId);
+      let filteredSemestres = [];
+      if (selectedParcours && selectedParcours.cycle_id) {
+          filteredSemestres = allSemestres.filter(s => s.cycle_id == selectedParcours.cycle_id);
+      }
+      populateDropdown('classe-semestre-select', filteredSemestres, 'Choisir un semestre', 'id', 'nom');
+  });
+
+  document.getElementById('form-create-user').addEventListener('submit', e => {
     e.preventDefault();
-    userStatusDiv.innerHTML = ''; // Vider le statut
-
-    const data = {
-      nom: document.getElementById('nom').value,
-      prenom: document.getElementById('prenom').value,
-      naissance: document.getElementById('naissance').value,
-      tel: document.getElementById('tel').value,
-      email: document.getElementById('email').value,
-      matricule: document.getElementById('matricule').value,
-      role: document.getElementById('role').value,
+    const data = { 
+        first_name: document.getElementById('user-first-name').value, 
+        last_name: document.getElementById('user-last-name').value, 
+        email: document.getElementById('user-email').value, 
+        phone_number: document.getElementById('user-phone').value, 
+        matricule: document.getElementById('user-matricule').value, 
+        role: document.getElementById('user-role').value,
+        date_de_naissance: document.getElementById('user-dob').value,
+        lieu_de_naissance: document.getElementById('user-pob').value,
+        nationalite: document.getElementById('user-nationality').value
     };
-
-    try {
-      const response = await fetch('/api/create-user/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        userStatusDiv.innerHTML = `<div class="alert alert-success">${result.message} (ID: ${result.user_id})</div>`;
-        userForm.reset();
-        populateUsersDropdown(); // Recharger la liste des utilisateurs
-      } else {
-        userStatusDiv.innerHTML = `<div class="alert alert-danger">Erreur: ${result.error}</div>`;
-      }
-    } catch (error) {
-      userStatusDiv.innerHTML = `<div class="alert alert-danger">Erreur de connexion à l'API.</div>`;
-      console.error('Error:', error);
-    }
+    handleFormSubmit('form-create-user', '/create-user/', data, 'user-creation-status', populateAll);
   });
 
-  // --- Gestion de l'attribution de filière ---
-  const filiereForm = document.getElementById("form-filiere");
-  const filiereAssignmentStatusDiv = document.getElementById("filiere-assignment-status");
-  const userSelect = document.getElementById("user-select");
-  const filiereSelect = document.getElementById("filiere");
-  const niveauSelect = document.getElementById("niveau");
-
-  async function populateUsersDropdown() {
-    try {
-      const response = await fetch('/api/users/');
-      const users = await response.json();
-      userSelect.innerHTML = '<option value="">-- Sélectionner un utilisateur --</option>';
-      users.forEach(user => {
-        const option = document.createElement('option');
-        option.value = user.id;
-        option.textContent = `${user.first_name || ''} ${user.last_name || ''} (${user.username})`;
-        userSelect.appendChild(option);
-      });
-    } catch (error) {
-      console.error('Error fetching users:', error);
-    }
-  }
-
-  async function populateFilieresDropdown() {
-    try {
-      const response = await fetch('/api/filieres/');
-      const filieres = await response.json();
-      filiereSelect.innerHTML = '<option value="">-- Sélectionner une filière --</option>';
-      filieres.forEach(filiere => {
-        const option = document.createElement('option');
-        option.value = filiere.id;
-        option.textContent = filiere.nom;
-        filiereSelect.appendChild(option);
-      });
-    } catch (error) {
-      console.error('Error fetching filieres:', error);
-    }
-  }
-
-  async function populateNiveauxDropdown() {
-    try {
-      const response = await fetch('/api/niveaux/');
-      const niveaux = await response.json();
-      niveauSelect.innerHTML = '<option value="">-- Sélectionner un niveau --</option>';
-      niveaux.forEach(niveau => {
-        const option = document.createElement('option');
-        option.value = niveau.id;
-        option.textContent = niveau.nom_complet;
-        niveauSelect.appendChild(option);
-      });
-    } catch (error) {
-      console.error('Error fetching niveaux:', error);
-    }
-  }
-
-  // Charger les dropdowns au chargement de la page
-  document.addEventListener('DOMContentLoaded', () => {
-    populateUsersDropdown();
-    populateFilieresDropdown();
-    populateNiveauxDropdown();
-    populateStudentNotesDropdown(); // Pour l'onglet notes
-  });
-
-  filiereForm.addEventListener("submit", async e => {
+  document.getElementById('form-create-filiere').addEventListener('submit', e => {
     e.preventDefault();
-    filiereAssignmentStatusDiv.innerHTML = ''; // Vider le statut
-
-    const data = {
-      user_id: userSelect.value,
-      filiere_id: filiereSelect.value,
-      niveau_id: niveauSelect.value,
-    };
-
-    if (!data.user_id || !data.filiere_id || !data.niveau_id) {
-      filiereAssignmentStatusDiv.innerHTML = `<div class="alert alert-warning">Veuillez sélectionner un utilisateur, une filière et un niveau.</div>`;
-      return;
-    }
-
-    try {
-      const response = await fetch('/api/assign-academic-info/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        filiereAssignmentStatusDiv.innerHTML = `<div class="alert alert-success">${result.message}</div>`;
-        // filiereForm.reset(); // Ne pas reset pour voir les sélections
-      } else {
-        filiereAssignmentStatusDiv.innerHTML = `<div class="alert alert-danger">Erreur: ${result.error}</div>`;
-      }
-    } catch (error) {
-      filiereAssignmentStatusDiv.innerHTML = `<div class="alert alert-danger">Erreur de connexion à l'API.</div>`;
-      console.error('Error:', error);
-    }
+    const data = { nom: document.getElementById('filiere-nom').value, code: document.getElementById('filiere-code').value };
+    handleFormSubmit('form-create-filiere', '/filieres/create/', data, 'filiere-creation-status', populateAll);
   });
 
-  // --- Gestion de la consultation des notes ---
-  const etudiantNotesSelect = document.getElementById("etudiant-notes");
-  const notesTableBody = document.getElementById("notes-table");
-
-  async function populateStudentNotesDropdown() {
-    try {
-      const response = await fetch('/api/users/');
-      const users = await response.json();
-      etudiantNotesSelect.innerHTML = '<option value="">-- Sélectionner un étudiant --</option>';
-      users.forEach(user => {
-        // Filtrer pour n'afficher que les étudiants (ceci est une simplification)
-        // Idéalement, l'API /users/ devrait permettre de filtrer par rôle
-        const option = document.createElement('option');
-        option.value = user.id;
-        option.textContent = `${user.first_name || ''} ${user.last_name || ''} (${user.username})`;
-        etudiantNotesSelect.appendChild(option);
-      });
-    } catch (error) {
-      console.error('Error fetching students for notes dropdown:', error);
-    }
-  }
-
-  etudiantNotesSelect.addEventListener('change', async () => {
-    const userId = etudiantNotesSelect.value;
-    notesTableBody.innerHTML = ''; // Vider le tableau
-
-    if (!userId) {
-      return;
-    }
-
-    try {
-      const response = await fetch(`/api/student-grades/?user_id=${userId}`);
-      const result = await response.json();
-
-      if (response.ok) {
-        if (result.grades && result.grades.length > 0) {
-          result.grades.forEach(inscriptionData => {
-            inscriptionData.notes.forEach(note => {
-              const row = notesTableBody.insertRow();
-              row.insertCell().textContent = note.ue;
-              row.insertCell().textContent = note.matiere;
-              row.insertCell().textContent = note.note_cc !== null ? note.note_cc : 'N/A';
-              row.insertCell().textContent = note.note_examen !== null ? note.note_examen : 'N/A';
-              row.insertCell().textContent = note.note_finale !== null ? note.note_finale : 'N/A';
-              row.insertCell().textContent = note.credits;
-            });
-          });
-        } else {
-          notesTableBody.innerHTML = `<tr><td colspan="6">Aucune note trouvée pour cet étudiant.</td></tr>`;
-        }
-      } else {
-        notesTableBody.innerHTML = `<tr><td colspan="6" class="text-danger">Erreur: ${result.error}</td></tr>`;
-      }
-    } catch (error) {
-      notesTableBody.innerHTML = `<tr><td colspan="6" class="text-danger">Erreur de connexion à l'API des notes.</td></tr>`;
-      console.error('Error fetching student grades:', error);
-    }
+  document.getElementById('form-create-parcours').addEventListener('submit', e => {
+    e.preventDefault();
+    const data = { filiere_id: document.getElementById('parcours-filiere-select').value, cycle_id: document.getElementById('parcours-cycle-select').value, nom: document.getElementById('parcours-nom').value, code: document.getElementById('parcours-code').value };
+    handleFormSubmit('form-create-parcours', '/parcours/create/', data, 'parcours-creation-status', populateAll);
   });
+
+  document.getElementById('form-create-classe').addEventListener('submit', e => {
+    e.preventDefault();
+    const data = { annee_academique_id: document.getElementById('classe-annee-select').value, parcours_id: document.getElementById('classe-parcours-select').value, semestre_id: document.getElementById('classe-semestre-select').value, nom: document.getElementById('classe-nom').value || 'Promo Complète' };
+    handleFormSubmit('form-create-classe', '/classes/create/', data, 'classe-creation-status', populateAll);
+  });
+
+  document.getElementById('form-enroll-student').addEventListener('submit', e => {
+    e.preventDefault();
+    const data = { user_id: document.getElementById('enroll-user-select').value, classe_id: document.getElementById('enroll-classe-select').value };
+    handleFormSubmit('form-enroll-student', '/enroll-student/', data, 'enroll-status', populateAll);
+  });
+
+  document.getElementById('form-get-grades').addEventListener('submit', async e => {
+      e.preventDefault();
+      const resultsDiv = document.getElementById('grades-results');
+      const userId = document.getElementById('grades-user-select').value;
+      resultsDiv.innerHTML = '<p>Chargement...</p>';
+      try {
+          const { grades, user_id } = await fetchData(`/student-grades/?user_id=${userId}`);
+          let html = `<h5>Notes pour l'étudiant #${user_id}</h5>`;
+          if (!grades || grades.length === 0) {
+              html += '<p>Aucune note trouvée pour cet étudiant.</p>';
+          } else {
+              grades.forEach(inscription => {
+                  html += `<div class="card mt-3"><div class="card-header">${inscription.classe_info.nom}</div><div class="card-body"><table class="table table-sm table-bordered"><thead class="table-light"><tr><th>Matière</th><th>Note CC</th><th>Note Examen</th><th>Note Finale</th></tr></thead><tbody>`;
+                  (inscription.notes || []).forEach(note => {
+                      html += `<tr><td>${note.matiere || 'N/A'} (${note.code_matiere || 'N/A'})</td><td>${note.note_cc ?? 'N/A'}</td><td>${note.note_examen ?? 'N/A'}</td><td><strong>${note.note_finale ?? 'N/A'}</strong></td></tr>`;
+                  });
+                  html += `</tbody></table></div></div>`;
+              });
+          }
+          resultsDiv.innerHTML = html;
+      } catch (error) {
+          resultsDiv.innerHTML = `<div class="alert alert-danger">Erreur lors de la récupération des notes.</div>`;
+      }
+  });
+
 </script>
 </body>
 </html>

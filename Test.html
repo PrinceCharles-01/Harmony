@@ -1,175 +1,128 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Gestion Académique - Utilisateurs</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Test de création d'utilisateur</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    body { background-color: #f8f9fa; }
-    .card { border-radius: 1rem; box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,.1); }
-    .nav-tabs .nav-link.active { background-color: #0d6efd; color: #fff; }
-    .table th { background-color: #f1f1f1; }
+    body{background:#f7f9fb;padding:28px;font-family:Inter, system-ui, Arial}
+    .card{max-width:900px;margin:24px auto;padding:18px;border-radius:12px}
+    .response{margin-top: 1rem; padding: 1rem; border-radius: 0.5rem; font-family: monospace;}
+    .response.success{background-color: #d1e7dd; color: #0f5132;}
+    .response.error{background-color: #f8d7da; color: #842029;}
   </style>
 </head>
 <body>
-<div class="container py-5">
-  <h2 class="mb-4 text-center text-primary">🎓 Portail de gestion académique</h2>
+  <div class="card shadow-sm">
+    <h3 class="mb-3">Créer un nouvel utilisateur via l'API</h3>
 
-  <!-- Onglets de navigation -->
-  <ul class="nav nav-tabs mb-4" id="tabs">
-    <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tab-user">Créer un utilisateur</a></li>
-    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-filiere">Attribuer une filière</a></li>
-    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-notes">Voir les notes</a></li>
-  </ul>
-
-  <div class="tab-content">
-
-    <!-- 🔹 Création d’utilisateur -->
-    <div class="tab-pane fade show active" id="tab-user">
-      <div class="card p-4">
-        <h5 class="mb-3">Créer un nouvel utilisateur</h5>
-        <form id="form-user">
-          <div class="row mb-3">
-            <div class="col-md-6">
-              <label class="form-label">Nom</label>
-              <input type="text" class="form-control" id="nom" required>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Prénom</label>
-              <input type="text" class="form-control" id="prenom">
-            </div>
-          </div>
-
-          <div class="row mb-3">
-            <div class="col-md-4">
-              <label class="form-label">Date de naissance</label>
-              <input type="date" class="form-control" id="naissance">
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Téléphone</label>
-              <input type="tel" class="form-control" id="tel">
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Email</label>
-              <input type="email" class="form-control" id="email">
-            </div>
-          </div>
-
-          <div class="row mb-3">
-            <div class="col-md-6">
-              <label class="form-label">Matricule</label>
-              <input type="text" class="form-control" id="matricule">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Rôle</label>
-              <select class="form-select" id="role">
-                <option>Étudiant</option>
-                <option>Enseignant</option>
-                <option>Responsable académique</option>
-                <option>Administrateur</option>
-              </select>
-            </div>
-          </div>
-
-          <button type="submit" class="btn btn-primary w-100">Créer l'utilisateur</button>
-        </form>
-      </div>
-    </div>
-
-    <!-- 🔹 Attribution de filière -->
-    <div class="tab-pane fade" id="tab-filiere">
-      <div class="card p-4">
-        <h5 class="mb-3">Attribuer une filière / niveau</h5>
-        <form id="form-filiere">
-          <div class="row mb-3">
-            <div class="col-md-4">
-              <label class="form-label">Utilisateur</label>
-              <select class="form-select" id="user-select">
-                <option>-- Sélectionner un utilisateur --</option>
-              </select>
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Filière</label>
-              <select class="form-select" id="filiere">
-                <option>Informatique de Gestion</option>
-                <option>Génie Logiciel</option>
-                <option>Sciences Économiques</option>
-              </select>
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Niveau</label>
-              <select class="form-select" id="niveau">
-                <option>L1</option>
-                <option>L2</option>
-                <option>L3</option>
-                <option>M1</option>
-                <option>M2</option>
-              </select>
-            </div>
-          </div>
-          <button type="submit" class="btn btn-success w-100">Attribuer</button>
-        </form>
-      </div>
-    </div>
-
-    <!-- 🔹 Consultation des notes -->
-    <div class="tab-pane fade" id="tab-notes">
-      <div class="card p-4">
-        <h5 class="mb-3">Notes de l’étudiant</h5>
-        <div class="mb-3">
-          <select class="form-select" id="etudiant-notes">
-            <option>-- Sélectionner un étudiant --</option>
-          </select>
+    <form id="createUserForm" novalidate>
+      <div class="row g-3">
+        
+        <div class="col-md-6">
+          <label for="id_matricule" class="form-label">Matricule (et Username)</label>
+          <input id="id_matricule" name="matricule" type="text" class="form-control" required>
         </div>
-        <table class="table table-bordered table-striped">
-          <thead>
-            <tr>
-              <th>UE</th>
-              <th>Matière</th>
-              <th>Devoir (30%)</th>
-              <th>Examen (70%)</th>
-              <th>Moyenne /20</th>
-              <th>Crédits</th>
-            </tr>
-          </thead>
-          <tbody id="notes-table">
-            <tr>
-              <td>Mathématiques Fondamentales</td>
-              <td>Analyse I</td>
-              <td>12</td>
-              <td>14</td>
-              <td>13.4</td>
-              <td>6</td>
-            </tr>
-            <tr>
-              <td>Programmation</td>
-              <td>Algorithmique</td>
-              <td>11</td>
-              <td>9</td>
-              <td>9.6</td>
-              <td>5</td>
-            </tr>
-          </tbody>
-        </table>
+
+        <div class="col-md-6">
+          <label for="id_email" class="form-label">Email</label>
+          <input id="id_email" name="email" type="email" class="form-control">
+        </div>
+
+        <div class="col-md-6">
+          <label for="id_password" class="form-label">Mot de passe</label>
+          <input id="id_password" name="password" type="password" class="form-control" required>
+        </div>
+
+        <div class="col-md-6">
+            <label for="id_role" class="form-label">Rôle</label>
+            <select id="id_role" name="role" class="form-select">
+                <option value="Étudiant" selected>Étudiant</option>
+                <option value="Enseignant">Enseignant</option>
+                <option value="Responsable Pédagogique">Responsable Pédagogique</option>
+                <option value="Administrateur">Administrateur</option>
+            </select>
+        </div>
+
+        <hr class="my-3">
+
+        <div class="col-md-6">
+          <label for="id_first_name" class="form-label">Prénom</label>
+          <input id="id_first_name" name="first_name" type="text" class="form-control">
+        </div>
+
+        <div class="col-md-6">
+          <label for="id_last_name" class="form-label">Nom</label>
+          <input id="id_last_name" name="last_name" type="text" class="form-control">
+        </div>
+
+        <div class="col-md-4">
+          <label for="id_date_de_naissance" class="form-label">Date de naissance</label>
+          <input id="id_date_de_naissance" name="date_de_naissance" type="date" class="form-control">
+        </div>
+
+        <div class="col-md-4">
+          <label for="id_lieu_de_naissance" class="form-label">Lieu de naissance</label>
+          <input id="id_lieu_de_naissance" name="lieu_de_naissance" type="text" class="form-control">
+        </div>
+
+        <div class="col-md-4">
+          <label for="id_nationalite" class="form-label">Nationalité</label>
+          <input id="id_nationalite" name="nationalite" type="text" class="form-control">
+        </div>
+
+        <div class="col-12 d-flex justify-content-end">
+          <button id="btnSubmit" type="submit" class="btn btn-primary">Créer l'utilisateur</button>
+        </div>
       </div>
-    </div>
+    </form>
+
+    <div id="response-container" class="response" style="display: none;"></div>
 
   </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-  // 👉 Ces fonctions appelleront plus tard tes API Django
-  document.getElementById("form-user").addEventListener("submit", e => {
-    e.preventDefault();
-    alert("Utilisateur créé ! (simulation API)");
-  });
+document.getElementById('createUserForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+  const form = e.target;
+  const formData = new FormData(form);
+  const data = Object.fromEntries(formData.entries());
 
-  document.getElementById("form-filiere").addEventListener("submit", e => {
-    e.preventDefault();
-    alert("Filière attribuée ! (simulation API)");
-  });
+  // Ne pas envoyer les champs de date s'ils sont vides
+  if (!data.date_de_naissance) delete data.date_de_naissance;
+
+  const responseContainer = document.getElementById('response-container');
+  responseContainer.style.display = 'none';
+
+  try {
+    const response = await fetch('http://localhost:8000/api/create-user/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+
+    const result = await response.json();
+
+    responseContainer.style.display = 'block';
+    responseContainer.textContent = JSON.stringify(result, null, 2);
+
+    if (response.ok) {
+      responseContainer.className = 'response success';
+      form.reset();
+    } else {
+      responseContainer.className = 'response error';
+    }
+
+  } catch (error) {
+    responseContainer.style.display = 'block';
+    responseContainer.className = 'response error';
+    responseContainer.textContent = `Erreur réseau ou JSON invalide: ${error}`;
+  }
+});
 </script>
 </body>
 </html>

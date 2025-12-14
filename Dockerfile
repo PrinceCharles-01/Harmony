@@ -1,8 +1,11 @@
 # Utiliser Python 3.13 comme image de base
-FROM python:3.13
+FROM python:3.12
 
 # Définir le répertoire de travail dans le conteneur
 WORKDIR /app
+
+# Installer les dépendances système nécessaires pour psycopg2
+RUN apt-get update && apt-get install -y build-essential libpq-dev
 
 # Copier les fichiers requirements
 COPY requirements.txt .

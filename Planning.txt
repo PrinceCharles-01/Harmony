@@ -1,0 +1,114 @@
+🧭 Objectif général
+
+Créer un système intelligent de planification d’emplois du temps qui :
+
+Génère automatiquement un emploi du temps hebdomadaire cohérent (lundi–samedi).
+
+Respecte les contraintes de professeurs, salles, horaires, cours, volumes horaires, etc.
+
+Permette des ajustements manuels et automatiques.
+
+🧩 Structure générale du backend
+1. Base de données
+Tables principales :
+Table	Contenu
+Classes	Identifiant, nom, niveau, filière
+Cours	Nom du cours, volume horaire, semestre, enseignant assigné
+Enseignants	Nom, matières, disponibilités, max d’heures/jour
+Salles	Nom, capacité, type (amphi, labo, etc.)
+PlagesHoraires	Jour, heure début, heure fin
+Contraintes	Type (jour férié, jour bloqué, max d’heures, etc.)
+EmploiDuTemps	Lien entre classe, salle, cours, enseignant, jour, heure
+➕ Optionnel :
+
+Historique / Modifications (pour logs et ajustements)
+
+Évaluations / Examens (pour les jours bloqués)
+
+2. API Backend
+Endpoints essentiels :
+Endpoint	Fonction
+POST /planifier	Lance l’algorithme de génération d’emploi du temps
+GET /emplois/:classe	Récupère l’emploi du temps d’une classe
+GET /enseignants/:id/disponibilite	Liste les créneaux libres d’un enseignant
+POST /contraintes	Ajoute ou modifie une contrainte
+POST /ajuster	Ajuste automatiquement un emploi du temps existant
+GET /statut	Vérifie la cohérence du planning (salles doublées, conflits, etc.)
+3. Algorithme de génération
+
+Le cœur du module. Il doit :
+
+Parcourir tous les cours à planifier.
+
+Trouver un créneau libre respectant :
+
+La disponibilité du prof.
+
+La disponibilité de la salle.
+
+Les contraintes générales (jours réservés, heures max, etc.).
+
+Affecter chaque cours à une plage horaire optimale.
+
+🔧 Approches possibles :
+Méthode	Description	Difficulté
+Backtracking (récursif)	Tente des combinaisons jusqu’à trouver un emploi du temps valide.	🟠 Moyenne
+Heuristique (greedy)	Place d’abord les cours les plus contraints (longs ou rares).	🟢 Simple
+Algorithme génétique / IA	Évolution de solutions jusqu’à l’optimale.	🔴 Complexe mais évolutif
+Constraint Programming (OR-Tools)	Utilise un solveur de contraintes (type Google OR-Tools).	🟣 Très robuste
+
+👉 Recommandation de départ :
+Commencer avec une approche heuristique + backtracking, puis intégrer OR-Tools plus tard pour une version plus intelligente.
+
+4. Technologies recommandées
+Composant	Choix recommandé	Alternatives
+Langage Backend	🐍 Python	PHP, Node.js
+Framework API	FastAPI (rapide, clair, typé)	Flask, Express.js
+Base de données	PostgreSQL	MySQL, SQLite
+ORM	SQLAlchemy	Prisma (si Node), Eloquent (si Laravel)
+Algorithme / IA	Google OR-Tools	PuLP, Pyomo
+Tests / validation	Pytest	Jest, PHPUnit
+5. Marche à suivre (Roadmap)
+Phase 1 — Structure et modèle
+
+ Créer la base de données (Classes, Cours, Enseignants, Salles…)
+
+ Définir les relations (ex : un enseignant enseigne plusieurs cours)
+
+ Développer les endpoints REST basiques pour CRUD
+
+Phase 2 — Algorithme de base
+
+ Implémenter un algorithme heuristique simple :
+
+Parcours des cours
+
+Affectation à la première plage disponible conforme
+
+ Empêcher les collisions (salle, prof, classe)
+
+Phase 3 — Gestion des contraintes
+
+ Ajouter la gestion des jours bloqués, heures max, etc.
+
+ Mettre en place un système de configuration flexible (JSON)
+
+Phase 4 — Optimisation et IA
+
+ Intégrer Google OR-Tools pour automatiser la recherche de solutions optimales
+
+ Ajouter un module d’ajustement automatique
+
+Phase 5 — Intégration Front-end
+
+ Connecter le backend à ton interface PWA (Bootstrap ou React)
+
+ Affichage visuel des emplois du temps (grille, couleur, etc.)
+
+6. Exemple de flux (simplifié)
+flowchart TD
+A[Importer les données (cours, profs, salles)] --> B[Génération de l’emploi du temps]
+B --> C{Conflits ?}
+C -->|Oui| D[Réajuster selon contraintes]
+C -->|Non| E[Valider et enregistrer]
+E --> F[Afficher dans le tableau de bord]

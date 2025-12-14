@@ -1,70 +1,90 @@
 import json
 import logging
-from django.http import JsonResponse
 from django.views import View
+from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-from users.models import CustomUser
-from roles.models import Role
-from academics.models import Classe, Inscription, Filiere, Niveau, Parcours, AnneeAcademique, Note
+from academics.models.lmd import CalculLMD, Classe, Inscription, Filiere, Niveau, Parcours, AnneeAcademique, Note, Cycle, Semestre, ElementConstitutif, Universite, Faculte, Departement, UniteEnseignement, ValidationUE
+from users.models import CustomUser, Enseignant
 
 logger = logging.getLogger(__name__)
 
 @method_decorator(csrf_exempt, name='dispatch')
-class UserCreateAPIView(View):
+class FiliereListView(View):
+    def get(self, request, *args, **kwargs):
+        filieres = Filiere.objects.all().values('id', 'nom', 'code')
+        return JsonResponse(list(filieres), safe=False)
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+
+@method_decorator(csrf_exempt, name='dispatch')
+class UserCreateAPIView(APIView):
     def post(self, request, *args, **kwargs):
         logger.info("UserCreateAPIView POST request received.")
         try:
-            data = json.loads(request.body)
-            email = data.get('email')
-            # Utiliser l'email comme username pour simplifier
-            username = email
-
-            # Champs du formulaire
-            password = data.get('password', 'password123') # Mot de passe par défaut pour le test
-            first_name = data.get('prenom')
-            last_name = data.get('nom')
-            birth_date = data.get('naissance')
-            phone_number = data.get('tel')
+            data = request.data
+            
+            # Get data from the form
             matricule = data.get('matricule')
+            email = data.get('email')
+            password = data.get('password', 'password123') # Default password for testing
+            first_name = data.get('first_name')
+            last_name = data.get('last_name')
+            date_de_naissance = data.get('date_de_naissance')
+            if date_de_naissance:
+                date_de_naissance = date_de_naissance.strip()
+            lieu_de_naissance = data.get('lieu_de_naissance')
+            nationalite = data.get('nationalite')
+            phone_number = data.get('phone_number')
             role_name = data.get('role')
 
-            if not email:
-                return JsonResponse({'error': 'Email is required.'}, status=400)
+            # Use matricule as username, as decided
+            username = matricule
+
+            if not username:
+                return Response({'error': 'Matricule is required.'}, status=status.HTTP_400_BAD_REQUEST)
 
             if CustomUser.objects.filter(username=username).exists():
-                return JsonResponse({'error': 'Username (email) already exists.'}, status=400)
+                return Response({'error': f'User with username (matricule) "{username}" already exists.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            if CustomUser.objects.filter(matricule=matricule).exists():
+                return Response({'error': f'User with matricule "{matricule}" already exists.'}, status=status.HTTP_400_BAD_REQUEST)
 
-            # Création de l'utilisateur en 2 temps pour gérer les champs personnalisés
+            # Create user
             user = CustomUser.objects.create_user(
                 username=username,
                 email=email,
                 password=password
             )
+            
+            # Set other fields
             user.first_name = first_name
             user.last_name = last_name
-            user.birth_date = birth_date
+            user.date_de_naissance = date_de_naissance
+            user.lieu_de_naissance = lieu_de_naissance
+            user.nationalite = nationalite
             user.phone_number = phone_number
             user.matricule = matricule
             user.save()
 
-            # Assignation du rôle
+            # Assign role
             if role_name:
                 try:
                     role = Role.objects.get(name=role_name)
                     user.roles.set([role])
                 except Role.DoesNotExist:
-                    # Ne pas bloquer la création si le rôle n'existe pas, juste logger
                     logger.warning(f"Role '{role_name}' not found for user '{username}'.")
             
             logger.info(f"User '{user.username}' created successfully.")
-            return JsonResponse({'message': 'User created successfully!', 'user_id': user.id}, status=201)
+            return Response({'message': 'User created successfully!', 'user_id': user.id}, status=status.HTTP_201_CREATED)
 
         except json.JSONDecodeError:
-            return JsonResponse({'error': 'Invalid JSON.'}, status=400)
+            return Response({'error': 'Invalid JSON.'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             logger.exception("An unexpected error occurred during user creation.")
-            return JsonResponse({'error': str(e)}, status=500)
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @method_decorator(csrf_exempt, name='dispatch')
 class EnrollStudentAPIView(View):
@@ -124,86 +144,132 @@ class UserListView(View):
         users = CustomUser.objects.all().values('id', 'username', 'first_name', 'last_name')
         return JsonResponse(list(users), safe=False)
 
-@method_decorator(csrf_exempt, name='dispatch')
-class FiliereListView(View):
-    def get(self, request, *args, **kwargs):
-        filieres = Filiere.objects.all().values('id', 'nom', 'code')
-        return JsonResponse(list(filieres), safe=False)
+
 
 @method_decorator(csrf_exempt, name='dispatch')
-class NiveauListView(View):
-    def get(self, request, *args, **kwargs):
-        niveaux = Niveau.objects.all().values('id', 'nom_complet', 'numero')
-        return JsonResponse(list(niveaux), safe=False)
-
-@method_decorator(csrf_exempt, name='dispatch')
-class AssignAcademicInfoAPIView(View):
+class FiliereCreateView(View):
     def post(self, request, *args, **kwargs):
-        logger.info("AssignAcademicInfoAPIView POST request received.")
+        logger.info("FiliereCreateView POST request received.")
         try:
             data = json.loads(request.body)
-            user_id = data.get('user_id')
-            filiere_id = data.get('filiere_id')
-            niveau_id = data.get('niveau_id')
+            nom = data.get('nom')
+            code = data.get('code')
 
-            if not all([user_id, filiere_id, niveau_id]):
-                return JsonResponse({'error': 'user_id, filiere_id, and niveau_id are required.'}, status=400)
+            if not all([nom, code]):
+                return JsonResponse({'error': 'nom and code are required.'}, status=400)
 
-            try:
-                user = CustomUser.objects.get(id=user_id)
-                filiere = Filiere.objects.get(id=filiere_id)
-                niveau = Niveau.objects.get(id=niveau_id)
-            except CustomUser.DoesNotExist:
-                return JsonResponse({'error': f'User with id {user_id} does not exist.'}, status=404)
-            except Filiere.DoesNotExist:
-                return JsonResponse({'error': f'Filiere with id {filiere_id} does not exist.'}, status=404)
-            except Niveau.DoesNotExist:
-                return JsonResponse({'error': f'Niveau with id {niveau_id} does not exist.'}, status=404)
+            if Filiere.objects.filter(code=code).exists():
+                return JsonResponse({'error': f'Filiere with code {code} already exists.'}, status=400)
 
-            # Trouver l'année académique active
-            active_annee = AnneeAcademique.objects.filter(est_active=True).first()
-            if not active_annee:
-                return JsonResponse({'error': 'No active academic year found. Please create one.'}, status=400)
+            filiere = Filiere.objects.create(nom=nom, code=code)
 
-            # Trouver ou créer un parcours par défaut pour la filière
-            # Pour l'instant, on prend le premier parcours de la filière, ou on en crée un simple
-            parcours = filiere.parcours.first()
-            if not parcours:
-                # Créer un parcours par défaut si aucun n'existe
-                parcours, _ = Parcours.objects.get_or_create(
-                    filiere=filiere,
-                    nom=f'{filiere.nom} - Parcours Général',
-                    code=f'{filiere.code}-PG'
-                )
-
-            # Trouver ou créer la classe (groupe par défaut 'Groupe A')
-            classe, created_classe = Classe.objects.get_or_create(
-                annee_academique=active_annee,
-                parcours=parcours,
-                niveau=niveau,
-                nom='Groupe A' # Assumer un groupe par défaut pour l'instant
-            )
-
-            # Assigner le rôle "Etudiant" si l'utilisateur ne l'a pas déjà
-            student_role, _ = Role.objects.get_or_create(name='Etudiant')
-            user.roles.add(student_role)
-
-            # Créer l'inscription
-            inscription, created_inscription = Inscription.objects.get_or_create(
-                etudiant=user,
-                classe=classe,
-            )
-
-            if not created_inscription:
-                return JsonResponse({'message': 'Student is already enrolled in this class.'}, status=200)
-
-            logger.info(f"User '{user.username}' successfully enrolled in class '{classe}'.")
-            return JsonResponse({'message': 'Student enrolled successfully!', 'classe_id': classe.id}, status=201)
+            logger.info(f"Filiere '{filiere.nom}' created successfully.")
+            return JsonResponse({'message': 'Filiere created successfully!', 'filiere_id': filiere.id}, status=201)
 
         except json.JSONDecodeError:
             return JsonResponse({'error': 'Invalid JSON.'}, status=400)
         except Exception as e:
-            logger.exception("An unexpected error occurred during academic info assignment.")
+            logger.exception("An unexpected error occurred during filiere creation.")
+            return JsonResponse({'error': str(e)}, status=500)
+
+@method_decorator(csrf_exempt, name='dispatch')
+class NiveauListView(View):
+    def get(self, request, *args, **kwargs):
+        niveaux = Niveau.objects.all().values('id', 'nom', 'code', 'numero', 'cycle_id')
+        return JsonResponse(list(niveaux), safe=False)
+
+@method_decorator(csrf_exempt, name='dispatch')
+class AnneeAcademiqueListView(View):
+    def get(self, request, *args, **kwargs):
+        annees = AnneeAcademique.objects.all().values('id', 'nom')
+        return JsonResponse(list(annees), safe=False)
+
+@method_decorator(csrf_exempt, name='dispatch')
+class CycleListView(View):
+    def get(self, request, *args, **kwargs):
+        cycles = Cycle.objects.all().values('id', 'nom')
+        return JsonResponse(list(cycles), safe=False)
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ParcoursListView(View):
+    def get(self, request, *args, **kwargs):
+        parcours = Parcours.objects.select_related('filiere', 'cycle').all()
+        data = [{
+            'id': p.id,
+            'nom': p.nom,
+            'code': p.code,
+            'filiere_id': p.filiere.id,
+            'filiere_nom': p.filiere.nom,
+            'cycle_id': p.cycle.id if p.cycle else None,
+            'cycle_nom': p.cycle.nom if p.cycle else None
+        } for p in parcours]
+        return JsonResponse(data, safe=False)
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ParcoursCreateView(View):
+    def post(self, request, *args, **kwargs):
+        try:
+            data = json.loads(request.body)
+            filiere_id = data.get('filiere_id')
+            cycle_id = data.get('cycle_id')
+            nom = data.get('nom')
+            code = data.get('code')
+
+            if not all([filiere_id, cycle_id, nom, code]):
+                return JsonResponse({'error': 'filiere_id, cycle_id, nom, and code are required.'}, status=400)
+
+            filiere = Filiere.objects.get(id=filiere_id)
+            cycle = Cycle.objects.get(id=cycle_id)
+            parcours = Parcours.objects.create(filiere=filiere, cycle=cycle, nom=nom, code=code)
+            
+            return JsonResponse({'message': 'Parcours created successfully!', 'parcours_id': parcours.id}, status=201)
+        except (Filiere.DoesNotExist, Cycle.DoesNotExist):
+            return JsonResponse({'error': 'Invalid filiere_id or cycle_id.'}, status=404)
+        except Exception as e:
+            logger.exception("Error creating parcours")
+            return JsonResponse({'error': str(e)}, status=500)
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ClasseListView(View):
+    def get(self, request, *args, **kwargs):
+        classes = Classe.objects.select_related('annee_academique', 'parcours__filiere', 'semestre__niveau').all()
+        data = [{
+            'id': c.id,
+            'nom': str(c), # Utilise la méthode __str__ du modèle
+        } for c in classes]
+        return JsonResponse(data, safe=False)
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ClasseCreateView(View):
+    def post(self, request, *args, **kwargs):
+        try:
+            data = json.loads(request.body)
+            annee_id = data.get('annee_academique_id')
+            parcours_id = data.get('parcours_id')
+            semestre_id = data.get('semestre_id') # Changed from niveau_id
+            nom = data.get('nom')
+
+            if not all([annee_id, parcours_id, semestre_id, nom]):
+                # Updated error message
+                return JsonResponse({'error': 'annee_academique_id, parcours_id, semestre_id, and nom are required.'}, status=400)
+
+            annee = AnneeAcademique.objects.get(id=annee_id)
+            parcours = Parcours.objects.get(id=parcours_id)
+            semestre = Semestre.objects.get(id=semestre_id) # Changed from Niveau
+            
+            classe = Classe.objects.create(
+                annee_academique=annee,
+                parcours=parcours,
+                semestre=semestre, # Changed from niveau
+                nom=nom
+            )
+            
+            return JsonResponse({'message': 'Classe created successfully!', 'classe_id': classe.id}, status=201)
+        # Updated exception handling
+        except (AnneeAcademique.DoesNotExist, Parcours.DoesNotExist, Semestre.DoesNotExist) as e:
+            return JsonResponse({'error': f'Invalid ID provided: {e}'}, status=404)
+        except Exception as e:
+            logger.exception("Error creating classe")
             return JsonResponse({'error': str(e)}, status=500)
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -220,40 +286,293 @@ class StudentGradesAPIView(View):
         except CustomUser.DoesNotExist:
             return JsonResponse({'error': f'User with id {user_id} does not exist.'}, status=404)
 
-        grades_data = []
+        response_data = {'user_id': user.id, 'grades_by_year': []}
+
         try:
-            inscriptions = Inscription.objects.filter(etudiant=user).select_related('classe')
+            logger.info(f"Fetching grades for user_id: {user_id}")
+            # 1. Get all inscriptions for the user
+            inscriptions = Inscription.objects.filter(etudiant=user).select_related(
+                'classe__annee_academique', 
+                'classe__parcours__filiere',
+                'classe__semestre__niveau'
+            ).order_by('classe__annee_academique__nom')
+            logger.info(f"Found {inscriptions.count()} inscriptions.")
 
-            for inscription in inscriptions:
-                classe_info = {
-                    'id': inscription.classe.id,
-                    'nom': str(inscription.classe),
-                    'filiere': inscription.classe.parcours.filiere.nom if inscription.classe.parcours and inscription.classe.parcours.filiere else None,
-                    'niveau': inscription.classe.niveau.nom_complet if inscription.classe.niveau else None,
-                    'annee_academique': inscription.classe.annee_academique.nom if inscription.classe.annee_academique else None,
+            # Group inscriptions by academic year
+            from itertools import groupby
+            
+            inscriptions_by_year = {k: list(v) for k, v in groupby(inscriptions, key=lambda i: i.classe.annee_academique)}
+
+            for annee, inscriptions_in_year in inscriptions_by_year.items():
+                logger.info(f"Processing year: {annee.nom}")
+                year_data = {
+                    'annee_academique_id': annee.id,
+                    'annee_academique_nom': annee.nom,
+                    'semestres': [],
+                    'moyenne_annee': None
                 }
-                
-                notes_for_inscription = []
-                # Récupérer les notes pour cette inscription
-                notes = Note.objects.filter(inscription=inscription).select_related('element_constitutif__ue')
 
-                for note in notes:
-                    notes_for_inscription.append({
-                        'ue': note.element_constitutif.ue.nom if note.element_constitutif and note.element_constitutif.ue else None,
-                        'matiere': note.element_constitutif.nom if note.element_constitutif else None,
-                        'code_matiere': note.element_constitutif.code if note.element_constitutif else None,
-                        'note_cc': note.note_cc,
-                        'note_examen': note.note_examen,
-                        'note_finale': note.note_finale,
-                        'credits': note.element_constitutif.credits if note.element_constitutif else None,
-                    })
-                grades_data.append({
-                    'inscription_id': inscription.id,
-                    'classe_info': classe_info,
-                    'notes': notes_for_inscription,
-                })
+                # Get all unique semestres for this year's inscriptions
+                semestre_ids = {i.classe.semestre.id for i in inscriptions_in_year if i.classe.semestre}
+                logger.info(f"Found semester IDs for this year: {semestre_ids}")
+                semestres = Semestre.objects.filter(id__in=semestre_ids).select_related('niveau').order_by('numero')
 
-            return JsonResponse({'user_id': user.id, 'grades': grades_data}, safe=False)
+                semestre_moyennes = []
+
+                for semestre in semestres:
+                    logger.info(f"-- Processing semester: {semestre}")
+                    semestre_data = {
+                        'semestre_id': semestre.id,
+                        'semestre_nom': str(semestre),
+                        'ues': []
+                    }
+                    
+                    # Find the relevant inscription for this semester
+                    # This assumes one inscription per student per semester, which is a simplification
+                    inscription = next((i for i in inscriptions_in_year if i.classe.semestre == semestre), None)
+                    if not inscription:
+                        logger.warning(f"-- No inscription found for semester {semestre.id} in this year group. Skipping.")
+                        continue
+
+                    ues = UniteEnseignement.objects.filter(semestre=semestre).prefetch_related('ecs')
+                    logger.info(f"---- Found {ues.count()} UEs for this semester.")
+                    
+                    for ue in ues:
+                        # Use ValidationUE to calculate and get UE average
+                        validation_ue, _ = ValidationUE.objects.get_or_create(inscription=inscription, ue=ue)
+                        validation_ue.calculer() # Recalculate to be sure
+
+                        matieres_data = []
+                        notes_for_ue = Note.objects.filter(inscription=inscription, element_constitutif__ue=ue)
+                        
+                        for note in notes_for_ue:
+                            matieres_data.append({
+                                'matiere': note.element_constitutif.nom,
+                                'code_matiere': note.element_constitutif.code,
+                                'note_cc': note.note_cc,
+                                'note_examen': note.note_examen,
+                                'note_finale': note.note_finale,
+                                'credits': note.element_constitutif.credits,
+                            })
+
+                        semestre_data['ues'].append({
+                            'ue_id': ue.id,
+                            'ue_nom': ue.nom,
+                            'moyenne_ue': validation_ue.moyenne,
+                            'credits_obtenus': validation_ue.credits_obtenus,
+                            'validee': validation_ue.validee,
+                            'matieres': matieres_data
+                        })
+
+                    # Calculate semester average using CalculLMD
+                    moyenne_sem = CalculLMD.moyenne_semestre(inscription, semestre)
+                    semestre_data['moyenne_semestre'] = moyenne_sem
+                    if moyenne_sem is not None:
+                        semestre_moyennes.append(moyenne_sem)
+
+                    year_data['semestres'].append(semestre_data)
+
+                # Calculate annual average
+                if semestre_moyennes:
+                    year_data['moyenne_annee'] = sum(semestre_moyennes) / len(semestre_moyennes)
+
+                response_data['grades_by_year'].append(year_data)
+            
+            logger.info(f"Final data to be sent: {json.dumps(response_data, indent=2, default=str)}")
+            return JsonResponse(response_data, safe=False)
         except Exception as e:
             logger.exception("Error fetching student grades for user %s", user_id)
+            return JsonResponse({'error': str(e)}, status=500)
+
+@method_decorator(csrf_exempt, name='dispatch')
+class SemestreListView(View):
+    def get(self, request, *args, **kwargs):
+        semestres = Semestre.objects.select_related('niveau__cycle').all()
+        data = [{
+            'id': s.id,
+            'nom': str(s),
+            'niveau_id': s.niveau.id,
+            'cycle_id': s.niveau.cycle.id
+        } for s in semestres]
+        return JsonResponse(data, safe=False)
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ElementConstitutifListView(View):
+    def get(self, request, *args, **kwargs):
+        subjects = ElementConstitutif.objects.all().values('id', 'nom', 'code', 'credits', 'coeff_cc', 'coeff_examen', 'ue_id')
+        return JsonResponse(list(subjects), safe=False)
+
+@method_decorator(csrf_exempt, name='dispatch')
+class UniteEnseignementListView(View):
+    def get(self, request, *args, **kwargs):
+        ues = UniteEnseignement.objects.all().values('id', 'nom', 'semestre_id')
+        return JsonResponse(list(ues), safe=False)
+
+@method_decorator(csrf_exempt, name='dispatch')
+class StudentListView(View):
+    def get(self, request, *args, **kwargs):
+        class_id = request.GET.get('class_id')
+        if not class_id:
+            return JsonResponse({'error': 'class_id is required.'}, status=400)
+
+        try:
+            classe = Classe.objects.get(id=class_id)
+        except Classe.DoesNotExist:
+            return JsonResponse({'error': f'Classe with id {class_id} does not exist.'}, status=404)
+
+        inscriptions = Inscription.objects.filter(classe=classe).select_related('etudiant')
+        students = [{
+            'id': inscription.etudiant.id,
+            'username': inscription.etudiant.username,
+            'first_name': inscription.etudiant.first_name,
+            'last_name': inscription.etudiant.last_name,
+            'studentNumber': inscription.etudiant.matricule, # Assuming matricule is the student number
+        } for inscription in inscriptions]
+
+        return JsonResponse(students, safe=False)
+
+@method_decorator(csrf_exempt, name='dispatch')
+class EnseignantListView(View):
+    def get(self, request, *args, **kwargs):
+        teachers = Enseignant.objects.select_related('user').all()
+        data = [{
+            'id': teacher.id,
+            'first_name': teacher.user.first_name,
+            'last_name': teacher.user.last_name,
+            'grade': teacher.grade,
+            'email': teacher.user.email,
+        } for teacher in teachers]
+        return JsonResponse(data, safe=False)
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ElementConstitutifCreateView(View):
+    def post(self, request, *args, **kwargs):
+        logger.info("ElementConstitutifCreateView POST request received.")
+        try:
+            data = json.loads(request.body)
+            nom = data.get('nom')
+            code = data.get('code')
+            credits = data.get('credits')
+            coeff_cc = data.get('coeff_cc')
+            coeff_examen = data.get('coeff_examen')
+            ue_id = data.get('ue_id')
+
+            if not all([nom, code, credits, coeff_cc, coeff_examen, ue_id]):
+                return JsonResponse({'error': 'nom, code, credits, coeff_cc, coeff_examen, and ue_id are required.'}, status=400)
+
+            try:
+                ue = UniteEnseignement.objects.get(id=ue_id)
+            except UniteEnseignement.DoesNotExist:
+                return JsonResponse({'error': f'UniteEnseignement with id {ue_id} does not exist.'}, status=404)
+
+            subject = ElementConstitutif.objects.create(
+                nom=nom,
+                code=code,
+                credits=credits,
+                coeff_cc=coeff_cc,
+                coeff_examen=coeff_examen,
+                ue=ue,
+            )
+
+            return JsonResponse({'message': 'Subject created successfully!', 'id': subject.id}, status=201)
+
+        except Exception as e:
+            logger.exception("An unexpected error occurred during subject creation.")
+            return JsonResponse({'error': str(e)}, status=500)
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ElementConstitutifUpdateView(View):
+    def put(self, request, pk, *args, **kwargs):
+        logger.info(f"ElementConstitutifUpdateView PUT request received for ID: {pk}")
+        try:
+            data = json.loads(request.body)
+            subject = ElementConstitutif.objects.get(pk=pk)
+
+            subject.nom = data.get('nom', subject.nom)
+            subject.code = data.get('code', subject.code)
+            subject.credits = data.get('credits', subject.credits)
+            subject.coeff_cc = data.get('coeff_cc', subject.coeff_cc)
+            subject.coeff_examen = data.get('coeff_examen', subject.coeff_examen)
+            ue_id = data.get('ue_id')
+            if ue_id:
+                try:
+                    ue = UniteEnseignement.objects.get(id=ue_id)
+                    subject.ue = ue
+                except UniteEnseignement.DoesNotExist:
+                    return JsonResponse({'error': f'UniteEnseignement with id {ue_id} does not exist.'}, status=404)
+            subject.save()
+
+            return JsonResponse({'message': 'Subject updated successfully!'}, status=200)
+
+        except ElementConstitutif.DoesNotExist:
+            return JsonResponse({'error': 'Subject not found.'}, status=404)
+        except Exception as e:
+            logger.exception("An unexpected error occurred during subject update.")
+            return JsonResponse({'error': str(e)}, status=500)
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ElementConstitutifDeleteView(View):
+    def delete(self, request, pk, *args, **kwargs):
+        logger.info(f"ElementConstitutifDeleteView DELETE request received for ID: {pk}")
+        try:
+            subject = ElementConstitutif.objects.get(pk=pk)
+            subject.delete()
+            return JsonResponse({'message': 'Subject deleted successfully!'}, status=204)
+        except ElementConstitutif.DoesNotExist:
+            return JsonResponse({'error': 'Subject not found.'}, status=404)
+        except Exception as e:
+            logger.exception("An unexpected error occurred during subject deletion.")
+            return JsonResponse({'error': str(e)}, status=500)
+
+@method_decorator(csrf_exempt, name='dispatch')
+class SaveGradesAPIView(View):
+    def post(self, request, *args, **kwargs):
+        logger.info("SaveGradesAPIView POST request received.")
+        try:
+            data = json.loads(request.body)
+            class_id = data.get('class')
+            subject_id = data.get('subject')
+            evaluation_type = data.get('evaluation')
+            grades = data.get('grades')
+
+            if not all([class_id, subject_id, grades, evaluation_type]):
+                return JsonResponse({'error': 'class_id, subject_id, grades, and evaluation_type are required.'}, status=400)
+
+            try:
+                classe = Classe.objects.get(id=class_id)
+                subject = ElementConstitutif.objects.get(id=subject_id)
+            except Classe.DoesNotExist:
+                return JsonResponse({'error': f'Classe with id {class_id} does not exist.'}, status=404)
+            except ElementConstitutif.DoesNotExist:
+                return JsonResponse({'error': f'ElementConstitutif with id {subject_id} does not exist.'}, status=404)
+
+            for student_id, grade_value in grades.items():
+                if grade_value:
+                    try:
+                        student = CustomUser.objects.get(id=student_id)
+                        inscription = Inscription.objects.get(etudiant=student, classe=classe)
+                        
+                        update_field = {}
+                        if evaluation_type == 'cc':
+                            update_field['note_cc'] = grade_value
+                        elif evaluation_type == 'examen':
+                            update_field['note_examen'] = grade_value
+                        else:
+                            logger.warning(f"Invalid evaluation type: {evaluation_type}")
+                            continue
+
+                        Note.objects.update_or_create(
+                            inscription=inscription,
+                            element_constitutif=subject,
+                            defaults=update_field
+                        )
+                    except CustomUser.DoesNotExist:
+                        logger.warning(f"User with id {student_id} not found, skipping grade entry.")
+                    except Inscription.DoesNotExist:
+                        logger.warning(f"Inscription for user {student_id} in class {class_id} not found, skipping grade entry.")
+
+            return JsonResponse({'message': 'Grades saved successfully!'}, status=200)
+
+        except Exception as e:
+            logger.exception("An unexpected error occurred during grade saving.")
             return JsonResponse({'error': str(e)}, status=500)

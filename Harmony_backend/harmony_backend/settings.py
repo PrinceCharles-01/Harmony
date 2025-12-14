@@ -12,6 +12,10 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -22,12 +26,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-2i4#x^y!8u65c5c_5h7=n^j6%eazm$u0r9mq=-hp+go2n4(brm'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-2i4#x^y!8u65c5c_5h7=n^j6%eazm$u0r9mq=-hp+go2n4(brm')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 
 # Application definition
@@ -40,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders',
+    'rest_framework', # ADD THIS LINE
      # custom apps 
     'users',
     'roles',
@@ -49,16 +54,23 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Add WhiteNoise for static files
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True # For development/testing only. Be more restrictive in production.
+# CORS configuration
+if DEBUG:
+    CORS_ALLOW_ALL_ORIGINS = True
+else:
+    CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', '').split(',')
+
+CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'http://localhost:5173').split(',')
 
 
 ROOT_URLCONF = 'harmony_backend.urls'
@@ -81,6 +93,18 @@ TEMPLATES = [
 WSGI_APPLICATION = 'harmony_backend.wsgi.application'
 
 
+# ADD THIS BLOCK
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer', # Keep browsable API for development
+    ],
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+    ]
+}
+
+
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
@@ -90,7 +114,7 @@ DATABASES = {
         'NAME': os.environ.get('DATABASE_NAME', 'harmony_db'),
         'USER': os.environ.get('DATABASE_USER', 'harmony_user'),
         'PASSWORD': os.environ.get('DATABASE_PASSWORD', 'harmony_password'),
-        'HOST': os.environ.get('DATABASE_HOST', 'db'),
+        'HOST': os.environ.get('DATABASE_HOST', 'localhost'),
         'PORT': os.environ.get('DATABASE_PORT', '5432'),
     }
 }
@@ -137,7 +161,18 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# WhiteNoise configuration
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

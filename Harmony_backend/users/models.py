@@ -1,75 +1,68 @@
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
+from django.utils import timezone
 from roles.models import Role
+from django.db.models import JSONField # <-- AJOUTER CET IMPORT
 
 # ---------------------------
 # UTILISATEUR PERSONNALISÉ
 # ---------------------------
 
-class CustomUser(AbstractUser):
-    """
-    Utilisateur personnalisé basé sur AbstractUser.
-    Permet d'associer chaque utilisateur à un ou plusieurs rôles.
-    """
-    roles = models.ManyToManyField(
-        Role,
-        blank=True,
-        related_name="users",
-        help_text="Rôles attribués à l'utilisateur"
-    )
-    phone_number = models.CharField(max_length=50, blank=True, null=True)
-    matricule = models.CharField(max_length=50, blank=True, null=True)
+class CustomUserManager(BaseUserManager):
+    def create_user(self, email, password=None, **extra_fields):
+        if not email:
+            raise ValueError('The Email field must be set')
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
 
-    class Meta:
-        verbose_name = "Utilisateur"
-        verbose_name_plural = "Utilisateurs"
+    def create_superuser(self, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('is_active', True)
+        return self.create_user(email, password, **extra_fields)
+
+class CustomUser(AbstractUser):
+    matricule = models.CharField(max_length=20, unique=True, blank=True, null=True)
+    first_name = models.CharField(max_length=30, blank=True)
+    last_name = models.CharField(max_length=30, blank=True)
+    email = models.EmailField(unique=True)
+    phone_number = models.CharField(max_length=15, blank=True, null=True)
+    address = models.CharField(max_length=255, blank=True, null=True)
+    date_de_naissance = models.DateField(blank=True, null=True)
+    lieu_de_naissance = models.CharField(max_length=100, blank=True, null=True)
+    genre = models.CharField(max_length=10, choices=[('M', 'Masculin'), ('F', 'Féminin')], blank=True, null=True)
+    nationalite = models.CharField(max_length=50, blank=True, null=True)
+    profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
+    roles = models.ManyToManyField(Role, related_name='users')
+
+    is_staff = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+    date_joined = models.DateTimeField(default=timezone.now)
+
+    objects = CustomUserManager()
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username']
 
     def __str__(self):
-        role_names = ", ".join([role.name for role in self.roles.all()])
-        return f"{self.username} ({role_names if role_names else 'Aucun rôle'})"
+        return self.email
 
-    # ---------------------------
-    # Gestion des permissions
-    # ---------------------------
+    def get_full_name(self):
+        return f"{self.first_name} {self.last_name}".strip()
 
-    def has_permission(self, perm_code: str) -> bool:
-        """
-        Vérifie si l'utilisateur possède une permission spécifique via ses rôles.
-        """
-        if not self.roles.exists():
-            return False
-        # Vérifie si au moins un des rôles de l'utilisateur a la permission
-        return self.roles.filter(permissions__code=perm_code).exists()
+    def get_short_name(self):
+        return self.first_name
 
-    def has_perm(self, perm: str, obj=None) -> bool:
-        """
-        Surcharge de la méthode native Django pour intégrer notre logique de permissions personnalisées.
-        Exemple d'appel attendu : "roles.ajouter_note"
-        """
-        # Superuser : accès total
-        if self.is_active and self.is_superuser:
-            return True
+class Enseignant(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='enseignant_profile')
+    grade = models.CharField(max_length=100, blank=True, null=True)
+    # Nouveaux champs
+    tags = JSONField(default=list, blank=True, help_text="Liste de tags décrivant les spécialités de l'enseignant (ex: ['Finance', 'Mathématiques'])")
+    cycles = models.ManyToManyField('academics.Cycle', blank=True, related_name='enseignants', help_text="Cycles auxquels l'enseignant est habituellement affilié")
 
-        # Vérification des permissions personnalisées
-        try:
-            # On ne vérifie que si le format est 'app_label.code'
-            app_label, code = perm.split('.')
-            return self.has_permission(code)
-        except ValueError:
-            pass  # Si le format n'est pas bon, on passe au fallback
+    def __str__(self):
+        return self.user.get_full_name()
 
-        # Sinon, fallback sur les permissions classiques Django
-        return super().has_perm(perm, obj)
-
-    def has_module_perms(self, app_label: str) -> bool:
-        """
-        Vérifie si l'utilisateur a des permissions pour une application donnée.
-        """
-        if self.is_active and self.is_superuser:
-            return True
-
-        if not self.roles.exists():
-            return False
-
-        # Vérifie si l'utilisateur a au moins une permission dans l'application donnée
-        return self.roles.filter(permissions__isnull=False).exists()
