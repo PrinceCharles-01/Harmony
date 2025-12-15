@@ -24,4 +24,4 @@ RUN python Harmony_backend/manage.py collectstatic --noinput || true
 EXPOSE 8000
 
 # Commande pour lancer Gunicorn en production
-CMD gunicorn --chdir Harmony_backend --bind 0.0.0.0:${PORT:-8000} harmony_backend.wsgi:application
+CMD ["sh", "-c", "gunicorn --chdir Harmony_backend --bind 0.0.0.0:${PORT:-8000} harmony_backend.wsgi:application"]
