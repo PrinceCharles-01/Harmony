@@ -1,11 +1,8 @@
 #!/bin/bash
 
 # Script de démarrage pour Railway
-# Utilise la variable PORT fournie par Railway, ou 8000 par défaut
 
-PORT=${PORT:-8000}
-
-echo "Starting Gunicorn on port $PORT..."
+echo "Starting Gunicorn on port 8000..."
 
 cd Harmony_backend
-gunicorn --bind 0.0.0.0:$PORT harmony_backend.wsgi:application --log-file -
+gunicorn --bind 0.0.0.0:8000 harmony_backend.wsgi:application --log-file -
