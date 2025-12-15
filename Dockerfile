@@ -17,6 +17,9 @@ RUN pip install -r requirements.txt
 # Copier tout le projet dans le conteneur
 COPY . .
 
+# Rendre le script de démarrage exécutable
+RUN chmod +x start.sh
+
 # Collecter les fichiers statiques
 RUN python Harmony_backend/manage.py collectstatic --noinput || true
 
@@ -24,4 +27,4 @@ RUN python Harmony_backend/manage.py collectstatic --noinput || true
 EXPOSE 8000
 
 # Commande pour lancer Gunicorn en production
-CMD ["sh", "-c", "gunicorn --chdir Harmony_backend --bind 0.0.0.0:${PORT:-8000} harmony_backend.wsgi:application"]
+CMD ["./start.sh"]
