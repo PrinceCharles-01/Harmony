@@ -1,8 +1,0 @@
-[build]
-builder = "nixpacks"
-buildCommand = "pip install -r requirements.txt && python Harmony_backend/manage.py collectstatic --noinput && python Harmony_backend/manage.py migrate"
-
-[deploy]
-startCommand = "gunicorn --chdir Harmony_backend harmony_backend.wsgi:application --bind 0.0.0.0:${PORT:-8000}"
-restartPolicyType = "on_failure"
-restartPolicyMaxRetries = 10
